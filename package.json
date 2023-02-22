@@ -1,6 +1,6 @@
 {
   "name": "@daniel-flux/flux-embeddable",
-  "version": "6.0.3",
+  "version": "6.0.4",
   "description": "A WebRTC Embeddable Widget Application",
   "main": "index.js",
   "license": "MIT",
