@@ -1,0 +1,149 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { createStore } from 'redux';
+import url from 'url';
+
+import 'setimmediate';
+import './lib/TabFreezePrevention';
+import './lib/patchGetUserMedia';
+import parseUri from './lib/parseUri';
+import { createPhone } from './modules/Phone';
+import App from './containers/App';
+
+const defaultPrefix = process.env.PREFIX;
+const defaultApiConfig = process.env.API_CONFIG;
+
+const currentUri = window.location.href;
+const pathParams = parseUri(currentUri);
+const clientIdFromParams = pathParams.clientId || pathParams.appKey;
+const clientSecretFromParams = pathParams.clientSecret || pathParams.appSecret;
+const authProxy = pathParams.authProxy;
+const enableDiscovery = !!pathParams.discovery;
+const discoverAppServer = pathParams.discoverAppServer;
+const apiConfig = {
+  clientId: clientIdFromParams || defaultApiConfig.appKey,
+  clientSecret: (clientIdFromParams ? clientSecretFromParams : defaultApiConfig.appSecret),
+  server: pathParams.appServer || defaultApiConfig.server,
+};
+if (enableDiscovery) {
+  apiConfig.enableDiscovery = enableDiscovery;
+  apiConfig.discoveryServer = discoverAppServer || apiConfig.server;
+}
+
+const appVersion = process.env.APP_VERSION;
+const externalAppVersion = pathParams.appVersion || appVersion;
+
+const {
+  stylesUri,
+  userAgent,
+  analyticsKey,
+  enableErrorReport,
+  authorizationCode,
+  authorizationCodeVerifier,
+  jwt,
+  defaultCallWith,
+  enableFromNumberSetting,
+  showMyLocationNumbers,
+  disconnectInactiveWebphone,
+  disableInactiveTabCallEvent,
+  disableLoginPopup,
+  multipleTabsSupport,
+  enableWebRTCPlanB,
+  brand,
+  enableRingtoneSettings,
+} = pathParams;
+
+const defaultBrand = brand || process.env.BRAND;
+const brandConfig = process.env.BRAND_CONFIGS[defaultBrand];
+
+if (process.env.NODE_ENV === 'production') {
+  const styleName = 'app.css';
+  const style = document.querySelector(`link[href="${styleName}"]`);
+  if (!style) {
+    const link = document.createElement("link");
+    link.type = 'text/css';
+    link.rel = 'stylesheet';
+    link.href = styleName;
+    document.head.appendChild(link);
+  }
+}
+
+const redirectUri = pathParams.redirectUri || process.env.REDIRECT_URI;
+const proxyUri = pathParams.proxyUri || process.env.PROXY_URI;
+const disableCall = typeof pathParams.disableCall !== 'undefined';
+const disableMessages = typeof pathParams.disableMessages !== 'undefined';
+const disableReadText = typeof pathParams.disableReadText !== 'undefined';
+const disableConferenceInvite = typeof pathParams.disableConferenceInvite === 'undefined' || pathParams.disableConferenceInvite === 'true';
+const disableGlip = typeof pathParams.disableGlip === 'undefined' || pathParams.disableGlip === 'true';
+const disableMeeting = typeof pathParams.disableMeeting !== 'undefined';
+const disableContacts = typeof pathParams.disableContacts !== 'undefined';
+const disableCallHistory = typeof pathParams.disableCallHistory !== 'undefined';
+
+const prefix = pathParams.prefix || defaultPrefix;
+const fromAdapter = !!pathParams.fromAdapter;
+const fromPopup = !!pathParams.fromPopup;
+let _errorReportToken = null;
+if (enableErrorReport) {
+  _errorReportToken = process.env.ERROR_REPORT_KEY;
+}
+if (pathParams.errorReportToken) {
+  _errorReportToken = pathParams.errorReportToken;
+}
+const errorReportSampleRate = pathParams.errorReportSampleRate || '0.1';
+const errorReportProjectId = pathParams.errorReportProjectId || '16';
+
+const recordingLink = process.env.RECORDING_LINK;
+
+const phone = createPhone({
+  apiConfig,
+  brandConfig,
+  prefix,
+  appVersion,
+  redirectUri,
+  proxyUri,
+  stylesUri,
+  disableCall,
+  disableMessages,
+  disableReadText,
+  disableConferenceInvite,
+  disableGlip,
+  disableMeeting,
+  disableContacts,
+  disableCallHistory,
+  authProxy,
+  userAgent,
+  analyticsKey,
+  errorReportEndpoint,
+  errorReportSampleRate,
+  recordingLink,
+  authorizationCode,
+  jwt,
+  authorizationCodeVerifier,
+  defaultCallWith,
+  disableInactiveTabCallEvent: !!disableInactiveTabCallEvent,
+  enableFromNumberSetting: !!enableFromNumberSetting,
+  showMyLocationNumbers: !!showMyLocationNumbers,
+  disconnectInactiveWebphone: !!disconnectInactiveWebphone,
+  disableLoginPopup: !!disableLoginPopup,
+  multipleTabsSupport: !!multipleTabsSupport || fromPopup,
+  enableWebRTCPlanB,
+  forceCurrentWebphoneActive: fromPopup,
+  fromPopup,
+  enableRingtoneSettings,
+  brandBaseUrl: process.env.HOSTING_URL ? process.env.HOSTING_URL : url.resolve(window.location.href, './'),
+});
+
+const store = createStore(phone.reducer);
+
+phone.setStore(store);
+
+window.phone = phone;
+
+ReactDOM.render(
+  <App
+    phone={phone}
+    showCallBadge={!fromAdapter}
+    appVersion={externalAppVersion}
+  />,
+  document.querySelector('div#viewport'),
+);

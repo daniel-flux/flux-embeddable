@@ -1,0 +1,73 @@
+@import '~normalize-css/normalize.css';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/full-size';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/colors';
+@import '~@ringcentral-integration/widgets/lib/commonStyles/fonts';
+
+:global div#viewport {
+  @include full-size;
+  position: absolute;
+}
+
+body {
+  background: #fff;
+  @include primary-font;
+}
+
+input {
+  background-color: transparent;
+}
+
+.root {
+  @include full-size;
+  background-color: $lightgray;
+}
+
+:global .rc-editor-mention-dropdown {
+  z-index: 12!important;
+}
+
+:global .ContactDetails_section .ContactDetails_label {
+  width: 25%;
+}
+
+:global .ContactDetails_section .ContactDetails_content {
+  width: 75%;
+}
+
+:global .VideoPanel_title {
+  display: none;  
+}
+
+:global .VideoPanel_hourDuration .RcSelectInput-root {
+  width: auto!important;
+}
+
+:global .VideoPanel_minuteDuration .RcSelectInput-root {
+  width: auto!important;
+}
+
+:global .MeetingConfigs_timePicker .rw-widget {
+  position: absolute;
+  width: 100%;
+}
+
+:global .VideoPanel_videoConfig .VideoPanel_meetingSection {
+  padding: 5px 20px;
+}
+
+:global .CallItem_wrapper .CallItem_infoWrapper {
+  overflow: visible;
+}
+
+div[class*="MuiCircularProgress-indeterminate"] {
+  animation: MuiCircularProgress-keyframes-circular-rotate2 1.4s linear infinite;
+}
+
+@keyframes MuiCircularProgress-keyframes-circular-rotate2 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
